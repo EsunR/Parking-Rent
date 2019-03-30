@@ -12,6 +12,8 @@ import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
 import './assets/style.css'
 
 Vue.prototype.COMMON = global
+moment.locale('zh-cn');
+Vue.prototype.$moment = moment;
 
 Vue.use(VueAxios, axios);
 axios.defaults.baseURL = global.host;
@@ -23,8 +25,8 @@ Vue.filter('dateFormat', function (dataStr, pattern = "YYYY-MM-DD HH:mm:ss") {
 })
 
 Vue.filter('description', function (description) {
-  if (description.length > 36) {
-    return description.substring(0, 36) + ' ... ...'
+  if (description.length > 50) {
+    return description.substring(0, 50) + ' ... ...'
   } else {
     return description;
   }
@@ -32,13 +34,26 @@ Vue.filter('description', function (description) {
 
 Vue.filter('status', function (status) {
   status = status.toString();
-  switch (status){
+  switch (status) {
     case '2':
       return '已选';
     case '1':
-      return '已租用';
+      return '已被租用';
     case '0':
-      return '未租用';
+      return '未被租用';
+  }
+})
+
+Vue.filter('identity', function (identity) {
+  switch (identity) {
+    case 'admin':
+      return '管理员';
+    case 'user':
+      return '普通用户';
+    case 'vip':
+      return '会员';
+    case 'staff':
+      return '员工';
   }
 })
 

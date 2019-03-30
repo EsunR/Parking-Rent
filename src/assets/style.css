@@ -54,3 +54,9 @@ label {
 button{
   outline: none !important;
 }
+
+@media screen and (max-width: 420px){
+  .el-message-box{
+    width: 100% !important;
+  }
+}

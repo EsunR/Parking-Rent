@@ -10,6 +10,7 @@
         class="activity_list list-group-item list-group-item-action"
         v-for="item in activityList"
         :key="item.id"
+        @click="$router.push('/user/activity/' + item.id)"
       >
         <div class="title">{{item.title}}</div>
         <div class="time">{{item.time | dateFormat('YYYY-MM-DD')}}</div>
@@ -24,7 +25,7 @@
             <div class="description">简介：{{item.description | description}}</div>
           </div>
           <div class="btn_box">
-            <div class="cost">价格：{{item.cost}}元</div>
+            <div class="cost">{{item.cost}}元/小时</div>
             <el-button @click="getDetail(item)" type="primary">查看详情</el-button>
           </div>
         </div>
@@ -46,79 +47,13 @@
 export default {
   data() {
     return {
-      activityList: [
-        {
-          id: 1,
-          title: "新用户停车八折活动~",
-          time: "1553852340000"
-        },
-        {
-          id: 2,
-          title: "新增2号停车场",
-          time: "1553852340000"
-        },
-        {
-          id: 3,
-          title: "会员限时免费停车",
-          time: "1553852340000"
-        },
-        {
-          id: 4,
-          title: "会员专享停车服务，首次充值会员多赠送一个月",
-          time: "1553852340000"
-        }
-      ],
-      parkingList: [
-        {
-          id: 1,
-          parkingName: "秋名山停车场",
-          description:
-            "停车场说明停车场说明停车场说明停车场说明停车场说明停车场说明停车场说明搜索明搜索明搜索明搜索",
-          cost: 1.5,
-          url: "http://study.esunr.xyz/Fimec3PBRpgu1tKfqymZAtL-CTFx"
-        },
-        {
-          id: 2,
-          parkingName: "黄山停车场",
-          description: "停车场说明",
-          cost: 1.5,
-          url: "http://study.esunr.xyz/FgJxJ8KCVAfp1ADjbwCTm6vpWSoX"
-        },
-        {
-          id: 3,
-          parkingName: "国家停车场",
-          description: "停车场说明",
-          cost: 1.5,
-          url: "http://study.esunr.xyz/Fimec3PBRpgu1tKfqymZAtL-CTFx"
-        },
-        {
-          id: 4,
-          parkingName: "停车场名",
-          description: "停车场说明",
-          cost: 1.5,
-          url: "http://study.esunr.xyz/Fimec3PBRpgu1tKfqymZAtL-CTFx"
-        },
-        {
-          id: 5,
-          parkingName: "停车场名",
-          description: "停车场说明",
-          cost: 1.5,
-          url: "http://study.esunr.xyz/Fimec3PBRpgu1tKfqymZAtL-CTFx"
-        },
-        {
-          id: 6,
-          parkingName: "停车场名",
-          description: "停车场说明",
-          cost: 1.5,
-          url: "http://study.esunr.xyz/Fimec3PBRpgu1tKfqymZAtL-CTFx"
-        }
-      ],
+      activityList: [],
+      parkingList: [],
       page: 1,
       total: 0
     };
   },
   methods: {
-    // TODO: 获取活动列表
     getActivityList() {
       this.axios
         .get("/getActivityList")
@@ -133,12 +68,11 @@ export default {
         });
     },
     getParkingList() {
-      // TODO: 获取停车场列表
       this.axios
         .get("/getParkingList?page=" + this.page)
         .then(res => {
           if (res.data.code == 1) {
-            this.parkingList = res.data.data;
+            this.parkingList = [...this.parkingList, ...res.data.data.parkingList];
           }
         })
         .catch(err => {
@@ -151,7 +85,15 @@ export default {
         name: "detail",
         params: item
       });
+    },
+    getMore() {
+      this.page++;
+      this.getParkingList();
     }
+  },
+  mounted() {
+    this.getActivityList();
+    this.getParkingList();
   }
 };
 </script>
@@ -182,7 +124,6 @@ export default {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
     margin-bottom: 20px;
     overflow: hidden;
-    cursor: pointer;
     .img_box {
       width: 100%;
       height: 0;

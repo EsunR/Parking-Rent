@@ -13,7 +13,7 @@ Vue.prototype.COMMON = global
 
 
 Vue.use(VueAxios, axios);
-// axios.defaults.baseURL = global.host;
+axios.defaults.baseURL = global.host;
 
 
 new Vue({

@@ -1,14 +1,15 @@
 <template>
-  <div id="detail">
+  <div id="detail" v-loading.fullscreen.lock="loading" element-loading-text="正在提交订单">
     <div id="cover" :style="`background: url(${parkingInfo.url});`"></div>
     <div id="parking_info_box" class="e_card">
       <div class="name">{{parkingInfo.parkingName}}</div>
       <div class="description">说明：{{parkingInfo.description}}</div>
       <div class="cost">
         租借费用：
-        <span>{{parkingInfo.cost}}元</span>
+        <span>{{parkingInfo.cost}}元/小时</span>
       </div>
     </div>
+
     <div id="spaceList">
       <div class="row">
         <div
@@ -27,12 +28,13 @@
         </div>
       </div>
     </div>
+    
     <transition>
       <el-button
         type="success"
         icon="el-icon-check"
         circle
-        class="commit_btn"
+        class="commit_btn shadow_base"
         v-if="selectedList.length != 0"
         data-toggle="modal"
         data-target="#exampleModalCenter"
@@ -66,9 +68,18 @@
               </div>
 
               <div class="title">租借时间：</div>
-              <el-time-picker v-model="startTime" placeholder="请选择" style="width: 100%"></el-time-picker>
+              <el-time-picker
+                v-model="startTime"
+                placeholder="请选择"
+                style="width: 100%"
+                value-format="timestamp"
+                :picker-options="{
+                  selectableRange: `${this.$moment().format('HH:mm:ss')} - 22:30:00}`
+                }"
+                format="HH:mm"
+              ></el-time-picker>
 
-              <div class="title">租借时常：</div>
+              <div class="title">租借时长：</div>
               <el-select v-model="timeLength" placeholder="请选择" style="width: 100%">
                 <el-option label="1小时" value="1"></el-option>
                 <el-option label="2小时" value="2"></el-option>
@@ -76,11 +87,16 @@
                 <el-option label="4小时" value="4"></el-option>
               </el-select>
             </div>
-            <div class="total">支付金额：{{(parkingInfo.cost * selectedList.length * timeLength).toFixed(2)}} 元</div>
+            <div class="total">
+              支付金额：
+              <span
+                style="color: red"
+              >{{(parkingInfo.cost * selectedList.length * timeLength).toFixed(2)}}</span> 元
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">取 消</button>
-            <button type="button" class="btn btn-primary">确 定</button>
+            <button type="button" class="btn btn-primary" @click="submitOrder()">确 定</button>
           </div>
         </div>
       </div>
@@ -92,6 +108,7 @@
 export default {
   data() {
     return {
+      loading: false,
       parkingInfo: this.$route.params,
       spaceList: [
         {
@@ -131,7 +148,7 @@ export default {
         }
       ],
       selectedList: [],
-      startTime: "",
+      startTime: Date.parse(new Date()),
       timeLength: "1"
     };
   },
@@ -152,7 +169,7 @@ export default {
           });
         } else {
           if (this.selectedList.length >= 3) {
-            this.$message.error("最多选择三个车位");
+            this.$message("最多选择三个车位");
             return;
           } else {
             list.status = 2;
@@ -160,7 +177,57 @@ export default {
           }
         }
       }
+    },
+    submitOrder() {
+      this.loading = true;
+      for (let i in this.selectedList) {
+        let order = {};
+        order.spaceName = this.selectedList[i].id;
+        order.startTime = this.startTime;
+        order.timeLength = this.timeLength;
+        order.cost = this.parkingInfo.cost;
+        for (let key in order) {
+          order[key] = order[key].toString();
+        }
+        // TODO: 逐条提交订单
+        this.axios
+          .post("/submitOrder", order)
+          .then(res => {
+            if (res.data.code == 1) {
+              if (i == this.selectedList.length) {
+                setTimeout(() => {
+                  this.loading = false;
+                  this.$message.success("提交成功");
+                  this.$router.push("/user/home");
+                }, 1500);
+              }
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            this.$message(
+              `服务器无法连接，${i}号订单预订失败，请返回订单页面查看详情`
+            );
+            this.loading = false;
+          });
+      }
+    },
+    getSpaceList() {
+      this.axios
+        .get("/getSpaceList?id=" + this.parkingInfo.id)
+        .then(res => {
+          if (res.data.code == 1) {
+            this.spaceList = res.data.data;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          this.$message("服务器无法连接，停车位列表获取失败");
+        });
     }
+  },
+  mounted(){
+    this.getSpaceList();
   }
 };
 </script>
@@ -249,7 +316,7 @@ export default {
       margin-right: 0px !important;
     }
   }
-  .total{
+  .total {
     margin-top: 20px;
     font-size: 1.2rem;
     text-align: right;
