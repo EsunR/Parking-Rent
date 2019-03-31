@@ -1,5 +1,15 @@
 <template>
   <div id="orderList">
+    <div class="e_card top_box">
+      <div class="left">
+        <div class="name">用户：{{$store.state.name}}</div>
+        <div class="total">订单总数：{{orderList.length}}</div>
+      </div>
+      <div class="right">
+        <el-button @click="logout" type="danger" icon="el-icon-circle-close
+">注销</el-button>
+      </div>
+    </div>
     <div class="orderList e_card" :key="item.id" v-for="item in orderList">
       <div class="title">
         <div class="id">订单编号：{{item.id}}</div>
@@ -17,8 +27,8 @@
       <hr>
 
       <div class="bottom">
-        <div 
-          class="status" 
+        <div
+          class="status"
           :class="{
             active: item.status == 2,
             wait: item.status == 1
@@ -78,6 +88,10 @@ export default {
             message: "操作已取消"
           });
         });
+    },
+    logout() {
+      localStorage.clear();
+      window.location.href = this.COMMON.login_location;
     }
   },
   mounted() {
@@ -87,6 +101,15 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.top_box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  .name {
+    margin-bottom: 5px;
+  }
+}
 .orderList {
   overflow: hidden;
   .title {
@@ -111,12 +134,13 @@ export default {
       border-radius: 5px;
       font-size: 16px;
       color: #909399;
+      font-weight: bold;
     }
     .active {
       color: #67c23a;
     }
-    .wait{
-      color: #F56C6C;
+    .wait {
+      color: #f56c6c;
     }
   }
 }

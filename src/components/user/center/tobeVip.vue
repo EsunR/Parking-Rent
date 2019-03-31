@@ -4,7 +4,8 @@
       <div class="title">成为会员</div>
       <hr>
       <div class="content">充值100元后，将获得会员资格，您可以参加会员活动。</div>
-      <el-button style="margin-top: 20px; float: right" type="danger" @click="rechargeClick">充值会员</el-button>
+      <el-button style="margin-top: 20px; float: right" type="danger" @click="rechargeClick" v-if="$store.state.identity == 'user'">充值会员</el-button>
+      <el-button style="margin-top: 20px; float: right" type="success" v-if="$store.state.identity == 'vip'">您已为会员</el-button>
     </div>
   </div>
 </template>

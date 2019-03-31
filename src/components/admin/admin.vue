@@ -15,6 +15,7 @@
         <el-menu-item index="manageUser">用户管理</el-menu-item>
       </el-menu>
     </el-header>
+
     <div id="main" class="container">
       <transition>
         <router-view></router-view>

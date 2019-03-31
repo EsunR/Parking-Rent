@@ -8,7 +8,7 @@
     <div class="content" v-show="content != ''">活动内容：{{content}}</div>
     <div class="error" v-show="content == ''">
       <div class="error_msg">抱歉，只有会员才能查看本活动内容</div>
-      <el-button @click="$router.push('/user/tobeVip')" size="medium">充值会员</el-button>
+      <el-button @click="$router.push('/user/center/tobeVip')" size="medium">充值会员</el-button>
     </div>
     <el-button
       type="primary"

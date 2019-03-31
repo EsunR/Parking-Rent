@@ -96,7 +96,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">取 消</button>
-            <button type="button" class="btn btn-primary" @click="submitOrder()">确 定</button>
+            <button type="button" class="btn btn-primary" @click="checkMoney()">确 定</button>
           </div>
         </div>
       </div>
@@ -188,7 +188,6 @@ export default {
         }
         $("#reminder_Modal").modal("show");
         this.reminderList = [];
-        // TODO: 逐条提交订单
         this.axios
           .post("/submitOrder", order)
           .then(res => {
@@ -240,6 +239,41 @@ export default {
       $("#reminder_Modal").modal("hide");
       $("#exampleModalCenter").modal("hide");
       this.$router.push("/user/center");
+    },
+    checkMoney() {
+      let cost = Number(
+        this.parkingInfo.cost * this.selectedList.length * this.timeLength
+      );
+      this.setUserInfo(() => {
+        if (Number(this.$store.state.money) < cost) {
+          this.$message.error("账户余额不足，请充值!");
+        } else {
+          this.submitOrder();
+        }
+      });
+    },
+    setUserInfo(callback) {
+      this.axios
+        .get("/userInfo")
+        .then(res => {
+          if (res.data.code == 1) {
+            let obj = res.data.data;
+            if (obj.money == null) {
+              obj.money = 0;
+            }
+            this.$store.commit("setState", obj);
+            callback();
+          } else {
+            this.$message.error("登录状态异常，请重新登录");
+            setTimeout(() => {
+              window.location.href = this.COMMON.login_location;
+            }, 1000);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          this.$message("服务器无法连接，身份获取失败");
+        });
     }
   },
   mounted() {
