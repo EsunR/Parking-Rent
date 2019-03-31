@@ -11,6 +11,11 @@ import home from './components/user/home.vue'
 import center from './components/user/center/center.vue'
 import detail from './components/user/detail.vue'
 import activity from './components/user/activity.vue'
+import orderList from './components/user/center/orderList'
+import recharge from './components/user/center/recharge.vue'
+import tobeVip from './components/user/center/tobeVip.vue'
+import leaveFeedback from './components/user/center/leaveFeedback.vue'
+
 
 // admin
 import admin from './components/admin/admin.vue'
@@ -52,7 +57,26 @@ var router = new Router({
         },
         {
           path: 'center',
-          component: center
+          component: center,
+          redirect: 'center/orderList',
+          children: [
+            {
+              path: 'orderList',
+              component: orderList
+            },
+            {
+              path: 'recharge',
+              component: recharge
+            },
+            {
+              path: 'tobeVip',
+              component: tobeVip
+            },
+            {
+              path: 'leaveFeedback',
+              component: leaveFeedback
+            }
+          ]
         },
       ]
     },

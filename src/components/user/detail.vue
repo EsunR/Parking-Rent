@@ -28,7 +28,7 @@
         </div>
       </div>
     </div>
-    
+
     <transition>
       <el-button
         type="success"
@@ -74,7 +74,7 @@
                 style="width: 100%"
                 value-format="timestamp"
                 :picker-options="{
-                  selectableRange: `${this.$moment().format('HH:mm:ss')} - 22:30:00}`
+                  selectableRange: `${this.$moment(Date.parse(new Date()) + 60000).format('HH:mm:ss')} - 22:30:00}`
                 }"
                 format="HH:mm"
               ></el-time-picker>
@@ -101,6 +101,39 @@
         </div>
       </div>
     </div>
+
+    <!-- model -->
+    <div
+      class="modal fade"
+      id="reminder_Modal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="reminder_ModalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">预订结果</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div
+              :class="{success: item.status == 1, fail: item.status == 0}"
+              class="reminderList"
+              v-for="item in reminderList"
+              :key="item.spaceName"
+            >车位编号：{{item.spaceName}} -- {{item.msg}}</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取 消</button>
+            <button type="button" class="btn btn-primary" @click="close">确 定</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -110,46 +143,11 @@ export default {
     return {
       loading: false,
       parkingInfo: this.$route.params,
-      spaceList: [
-        {
-          id: 1,
-          status: 0,
-          parkingId: 1
-        },
-        {
-          id: 2,
-          status: 1,
-          parkingId: 1
-        },
-        {
-          id: 3,
-          status: 0,
-          parkingId: 1
-        },
-        {
-          id: 4,
-          status: 1,
-          parkingId: 1
-        },
-        {
-          id: 5,
-          status: 0,
-          parkingId: 1
-        },
-        {
-          id: 6,
-          status: 0,
-          parkingId: 0
-        },
-        {
-          id: 7,
-          status: 0,
-          parkingId: 1
-        }
-      ],
+      spaceList: [],
       selectedList: [],
-      startTime: Date.parse(new Date()),
-      timeLength: "1"
+      timeLength: "1",
+      startTime: Date.parse(new Date()) + 60000,
+      reminderList: []
     };
   },
   methods: {
@@ -179,7 +177,6 @@ export default {
       }
     },
     submitOrder() {
-      this.loading = true;
       for (let i in this.selectedList) {
         let order = {};
         order.spaceName = this.selectedList[i].id;
@@ -189,18 +186,31 @@ export default {
         for (let key in order) {
           order[key] = order[key].toString();
         }
+        $("#reminder_Modal").modal("show");
+        this.reminderList = [];
         // TODO: 逐条提交订单
         this.axios
           .post("/submitOrder", order)
           .then(res => {
+            // 成功预订
             if (res.data.code == 1) {
-              if (i == this.selectedList.length) {
-                setTimeout(() => {
-                  this.loading = false;
-                  this.$message.success("提交成功");
-                  this.$router.push("/user/home");
-                }, 1500);
+              let obj = {
+                spaceName: order.spaceName,
+                msg: "预订成功",
+                status: 1
+              };
+              this.reminderList = [...this.reminderList, obj];
+            } else {
+              // 失败预订
+              let obj = { spaceName: order.spaceName };
+              if (res.data.data) {
+                obj.msg = "已有人在该时间段预订";
+                obj.status = 0;
+              } else {
+                obj.msg = this.data.msg;
+                obj.status = 0;
               }
+              this.reminderList = [...this.reminderList, obj];
             }
           })
           .catch(err => {
@@ -222,11 +232,17 @@ export default {
         })
         .catch(err => {
           console.log(err);
-          this.$message("服务器无法连接，停车位列表获取失败");
+          this.$message("页面失效，请重新进入");
+          this.$router.push("/user");
         });
+    },
+    close() {
+      $("#reminder_Modal").modal("hide");
+      $("#exampleModalCenter").modal("hide");
+      this.$router.push("/user/center");
     }
   },
-  mounted(){
+  mounted() {
     this.getSpaceList();
   }
 };
@@ -294,32 +310,50 @@ export default {
   }
 }
 
-.modal-body {
-  .title {
-    font-size: 16px;
-    color: #909399;
+#exampleModalCenter {
+  .modal-body {
+    .title {
+      font-size: 16px;
+      color: #909399;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+    .item_box {
+      display: flex;
+      .item {
+        font-size: 14px;
+        text-align: left;
+        background-color: rgba(0, 0, 0, 0.12);
+        border-radius: 5px;
+        margin-right: 10px;
+        padding: 5px 10px;
+        text-align: center;
+      }
+      &:last-child {
+        margin-right: 0px !important;
+      }
+    }
+    .total {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      text-align: right;
+    }
+  }
+}
+
+#reminder_Modal {
+  .reminderList {
+    padding: 10px;
+    border-radius: 5px;
     margin-bottom: 10px;
-    margin-top: 10px;
   }
-  .item_box {
-    display: flex;
-    .item {
-      font-size: 14px;
-      text-align: left;
-      background-color: rgba(0, 0, 0, 0.12);
-      border-radius: 5px;
-      margin-right: 10px;
-      padding: 5px 10px;
-      text-align: center;
-    }
-    &:last-child {
-      margin-right: 0px !important;
-    }
+  .success {
+    color: white;
+    background-color: #67c23a;
   }
-  .total {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    text-align: right;
+  .fail {
+    color: white;
+    background-color: #f56c6c;
   }
 }
 </style>

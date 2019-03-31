@@ -38,9 +38,25 @@ Vue.filter('status', function (status) {
     case '2':
       return '已选';
     case '1':
-      return '已被租用';
+      return '正被租用';
     case '0':
       return '未被租用';
+  }
+})
+
+Vue.filter('orderStatus', function (code) {
+  code = code.toString();
+  switch (code) {
+    case '1':
+      return '未达租用时间';
+    case '2':
+      return '正在租用';
+    case '3':
+      return '正在退单';
+    case '4':
+      return '已退单';
+    case '5':
+      return '租用结束';
   }
 })
 
