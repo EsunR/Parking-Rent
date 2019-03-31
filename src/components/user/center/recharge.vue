@@ -3,7 +3,7 @@
     <div class="recharge_box e_card">
       <div class="money">账户余额：{{$store.state.money}} 元</div>
       <hr>
-      <el-input placeholder="请输入内容" v-model="moeny" class="input-with-select">
+      <el-input placeholder="请输入内容" v-model="money" class="input-with-select">
         <el-button slot="append" icon="el-icon-circle-check-outline" @click="recharge">充值</el-button>
       </el-input>
     </div>
@@ -14,7 +14,7 @@
 export default {
   data() {
     return {
-      moeny: ""
+      money: ""
     };
   },
   methods: {
@@ -22,11 +22,12 @@ export default {
       this.axios
         .post("/recharge", {
           id: this.$store.state.uid.toString(),
-          money: this.moeny
+          money: this.money
         })
         .then(res => {
           if (res.data.code == 1) {
             this.$message.success("充值成功！");
+            this.money = "";
             this.setUserInfo();
           }
         })
