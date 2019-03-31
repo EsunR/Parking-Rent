@@ -10,22 +10,19 @@
 ">注销</el-button>
       </div>
     </div>
+
     <div class="orderList e_card" :key="item.id" v-for="item in orderList">
       <div class="title">
         <div class="id">订单编号：{{item.id}}</div>
       </div>
-
       <hr>
-
       <div class="parkingName">{{item.parkingName}}</div>
       <div class="info">
         <div class="spaceName">车位编号：{{item.spaceName}}</div>
         <div class="timeLength">停车时长：{{item.timeLength}}小时</div>
       </div>
       <div class="startTime">开始租用时间：{{item.startTime | dateFormat('YYYY-MM-DD HH:mm')}}</div>
-
       <hr>
-
       <div class="bottom">
         <div
           class="status"
@@ -38,6 +35,7 @@
         <el-button type="danger" v-if="item.status != 1" disabled>已不可退单</el-button>
       </div>
     </div>
+    
   </div>
 </template>
 

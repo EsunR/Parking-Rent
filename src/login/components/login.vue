@@ -15,12 +15,12 @@
       <el-form-item label="密码" prop="password">
         <el-input type="password" v-model="loginForm.password"></el-input>
       </el-form-item>
-      <el-form-item label="登录方式">
+      <!-- <el-form-item label="登录方式">
         <el-select v-model="loginForm.loginWay" style="width: 100%">
           <el-option label="普通用户" value="user"></el-option>
           <el-option label="员工登录" value="staff"></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-checkbox v-model="rememberPwd" class="rememberPwd">记住密码</el-checkbox>
       <el-form-item class="btn_box">
         <el-button type="primary" @click="loginClick">登 录</el-button>
@@ -37,7 +37,7 @@ export default {
       loginForm: {
         account: "",
         password: "",
-        loginWay: "user"
+        // loginWay: "user"
       },
       rules: {
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],

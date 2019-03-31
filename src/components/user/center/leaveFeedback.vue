@@ -1,5 +1,6 @@
 <template>
   <div id="leaveFeedback">
+
     <div class="feedback_box e_card">
       <div class="titel">留言反馈</div>
       <hr>
@@ -32,12 +33,13 @@ export default {
     submitFeedback() {
       this.axios
         .post("/submitFeedback", {
-          content: this.content
+          content: this.content,
+          time: Date.parse(new Date()).toString()
         })
         .then(res => {
           if (res.data.code == 1) {
             this.content = "";
-            this.$message.success('提交成功!');
+            this.$message.success("提交成功!");
           }
         })
         .catch(err => {

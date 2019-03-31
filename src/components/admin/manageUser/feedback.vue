@@ -1,5 +1,7 @@
 <template>
   <div id="feedback">
+    <div class="e_card" v-if="feedbackList.length == 0">暂无反馈</div>
+
     <div class="e_card feedback_list" v-for="item in feedbackList" :key="item.id">
       <div class="name">{{item.name}}</div>
       <hr>
@@ -13,21 +15,7 @@
 export default {
   data() {
     return {
-      feedbackList: [
-        {
-          id: 1,
-          content: "反馈内容",
-          name: "姓名",
-          account: "111111"
-        },
-        {
-          id: 2,
-          content:
-            "反馈内容反馈内容反馈内容反馈内容反馈内容反馈内容反馈内容反馈内容反馈内容反馈内容",
-          name: "姓名",
-          account: "111111"
-        }
-      ]
+      feedbackList: []
     };
   },
   methods: {

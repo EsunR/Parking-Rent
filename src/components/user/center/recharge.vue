@@ -21,7 +21,7 @@ export default {
     recharge() {
       this.axios
         .post("/recharge", {
-          uid: this.$store.state.uid.toString(),
+          id: this.$store.state.uid.toString(),
           money: this.moeny
         })
         .then(res => {
